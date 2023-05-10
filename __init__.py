@@ -10,7 +10,7 @@ from shutil import rmtree
 
 from core.api import DeviceApi
 from core.messagebus.message import Message
-from core import MycroftSkill, intent_handler
+from core import Skill, intent_handler
 
 
 def on_error_speak_dialog(dialog_file):
@@ -28,7 +28,7 @@ def on_error_speak_dialog(dialog_file):
     return decorator
 
 
-class ConfigurationSkill(MycroftSkill):
+class ConfigurationSkill(Skill):
     PRECISE_DEV_DIST_URL = "https://github.com/MycroftAI/precise-data/" \
                            "raw/dist/{arch}/latest"
     PRECISE_DEV_MODEL_URL = "https://raw.githubusercontent.com/MycroftAI/" \
@@ -199,7 +199,7 @@ class ConfigurationSkill(MycroftSkill):
                     require('Config'))
     def handle_update_intent(self, message):
         try:
-            self.bus.emit(Message('mycroft.skills.settings.update'))
+            self.bus.emit(Message('core.skills.settings.update'))
             if self.update():
                 self.speak_dialog("config.updated")
             else:

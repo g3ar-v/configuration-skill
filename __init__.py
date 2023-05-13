@@ -1,10 +1,9 @@
 import hashlib
-
 import os
 import random
 from adapt.intent import IntentBuilder
 from glob import glob
-from os.path import isfile, expanduser, isdir
+from os.path import isfile, expanduser, isdir, join
 from requests import HTTPError
 from shutil import rmtree
 
@@ -206,6 +205,44 @@ class ConfigurationSkill(Skill):
                 self.speak_dialog("config.no_change")
         except HTTPError as e:
             self.__api_error(e)
+
+    @intent_handler(IntentBuilder('SetSpeechIntent').
+                    require('Set').
+                    require('Speech').
+                    require('SpeechType'))
+    def handle_set_speech(self, message):
+        from core.configuration.config import (
+            LocalConf, USER_CONFIG
+        )
+        self.log.info(message.data)
+        module = message.data['SpeechType'].replace(' ', '')
+        module = module.replace('mimic', 'mimic3')
+        module = module.replace('11', 'elevenlabs')
+        # module = re.sub(r'11\w*', 'elevenlabs', module)
+        name = module.replace('eleven labs', 'elevenlabs')
+        self.log.info(name)
+
+        if self.get_speech() == module:
+            self.speak_dialog('speech.same', data={'speech': name})
+            return
+
+        new_config = {
+            'tts': {'module': name},
+            'sounds': {'start_listening': join('snd', name + '.wav')}
+        }
+        user_config = LocalConf(USER_CONFIG)
+        user_config.merge(new_config)
+        user_config.store()
+
+        self.bus.emit(Message('configuration.updated'))
+
+        self.speak_dialog('set.speech', data={'speech': name})
+
+    def get_speech(self):
+        """Raises Import Error or KeyError if not supported"""
+        from core.configuration.config import Configuration
+        tts_config = Configuration.get()['tts'].get('module', {})
+        return tts_config
 
     def update_remote(self, message):
         """ Handler for scheduled remote configuration update.

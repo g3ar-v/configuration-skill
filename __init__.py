@@ -49,28 +49,28 @@ class ConfigurationSkill(Skill):
         device = DeviceApi().get()
         self.speak_dialog("my.name.is", data={"name": device["name"]})
 
-    @intent_handler("EnablePreciseDev.intent")
-    @on_error_speak_dialog('must.update')
-    def handle_use_precise_dev(self, message):
-        from core.configuration.config import (
-            LocalConf, USER_CONFIG, Configuration
-        )
+    # @intent_handler("EnablePreciseDev.intent")
+    # @on_error_speak_dialog('must.update')
+    # def handle_use_precise_dev(self, message):
+    #     from core.configuration.config import (
+    #         LocalConf, USER_CONFIG, Configuration
+    #     )
 
-        wake_word = Configuration.get()['listener']['wake_word']
+    #     wake_word = Configuration.get()['listener']['wake_word']
 
-        new_config = {
-            'precise': {
-                "dist_url": self.PRECISE_DEV_DIST_URL,
-                "model_url": self.PRECISE_DEV_MODEL_URL
-            },
-            'hotwords': {wake_word: {'module': 'precise', 'sensitivity': 0.5}}
-        }
-        user_config = LocalConf(USER_CONFIG)
-        user_config.merge(new_config)
-        user_config.store()
+    #     new_config = {
+    #         'precise': {
+    #             "dist_url": self.PRECISE_DEV_DIST_URL,
+    #             "model_url": self.PRECISE_DEV_MODEL_URL
+    #         },
+    #         'hotwords': {wake_word: {'module': 'precise', 'sensitivity': 0.5}}
+    #     }
+    #     user_config = LocalConf(USER_CONFIG)
+    #     user_config.merge(new_config)
+    #     user_config.store()
 
-        self.bus.emit(Message('configuration.updated'))
-        self.speak_dialog('precise.devmode.enabled')
+    #     self.bus.emit(Message('configuration.updated'))
+    #     self.speak_dialog('precise.devmode.enabled')
 
     @intent_handler("DisablePreciseDev.intent")
     @on_error_speak_dialog('must.update')

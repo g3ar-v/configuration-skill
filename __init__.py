@@ -7,7 +7,7 @@ from os.path import isfile, expanduser, isdir, join
 from requests import HTTPError
 from shutil import rmtree
 
-from core.api import DeviceApi
+from backend_client.api import DeviceApi
 from core.messagebus.message import Message
 from core import Skill, intent_handler
 
@@ -41,8 +41,9 @@ class ConfigurationSkill(Skill):
         self.settings["max_delay"] = 60
 
     def initialize(self):
-        self.schedule_repeating_event(self.update_remote, None, 60,
-                                      'UpdateRemote')
+        pass
+        # self.schedule_repeating_event(self.update_remote, None, 60,
+                                      # 'UpdateRemote')
 
     @intent_handler(IntentBuilder('').require('Query').require('Name'))
     def handle_query_name(self, message):
@@ -228,7 +229,8 @@ class ConfigurationSkill(Skill):
 
         new_config = {
             'tts': {'module': name},
-            'sounds': {'start_listening': join('snd', name + '.wav')}
+            'sounds': {'start_listening': name}
+
         }
         user_config = LocalConf(USER_CONFIG)
         user_config.merge(new_config)
